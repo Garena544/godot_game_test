@@ -1,0 +1,128 @@
+[gd_scene load_steps=8 format=3 uid="uid://bqxvhxqxqxqxq"]
+
+[ext_resource type="Script" uid="uid://desjftw3m4vkf" path="res://scripts/Main.gd" id="1_0xqxq"]
+[ext_resource type="Script" uid="uid://bkc2ut5evw2nf" path="res://scripts/GameManager.gd" id="2_0xqxq"]
+[ext_resource type="Script" uid="uid://ct20ngra2ykc2" path="res://scripts/DialogueManager.gd" id="3_0xqxq"]
+[ext_resource type="Script" uid="uid://c0ag34eapgyyn" path="res://scripts/UIManager.gd" id="4_0xqxq"]
+[ext_resource type="Script" uid="uid://qhtnf12ugjj0" path="res://scripts/InventoryManager.gd" id="5_0xqxq"]
+[ext_resource type="Script" uid="uid://dmbuqjm8dk2ti" path="res://scripts/SceneManager.gd" id="6_0xqxq"]
+[ext_resource type="Script" uid="uid://bgbeawchnqm27" path="res://scripts/SaveManager.gd" id="7_0xqxq"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_0xqxq")
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("2_0xqxq")
+
+[node name="DialogueManager" type="Node" parent="."]
+script = ExtResource("3_0xqxq")
+
+[node name="SceneManager" type="Node" parent="."]
+script = ExtResource("6_0xqxq")
+
+[node name="InventoryManager" type="Node" parent="."]
+script = ExtResource("5_0xqxq")
+
+[node name="SaveManager" type="Node" parent="."]
+script = ExtResource("7_0xqxq")
+
+[node name="UIManager" type="CanvasLayer" parent="."]
+script = ExtResource("4_0xqxq")
+
+[node name="DialogueUI" type="Control" parent="UIManager"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DialoguePanel" type="Panel" parent="UIManager/DialogueUI"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -300.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="DialogueText" type="RichTextLabel" parent="UIManager/DialogueUI/DialoguePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -150.0
+grow_horizontal = 2
+grow_vertical = 2
+bbcode_enabled = true
+text = "欢迎来到文字探险游戏！"
+
+[node name="ChoiceContainer" type="VBoxContainer" parent="UIManager/DialogueUI/DialoguePanel"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -130.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="InventoryUI" type="Control" parent="UIManager"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="InventoryPanel" type="Panel" parent="UIManager/InventoryUI"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 50.0
+offset_top = -150.0
+offset_right = 350.0
+offset_bottom = 150.0
+grow_vertical = 0
+
+[node name="InventoryTitle" type="Label" parent="UIManager/InventoryUI/InventoryPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 50.0
+grow_horizontal = 2
+text = "物品栏"
+horizontal_alignment = 1
+
+[node name="InventoryList" type="VBoxContainer" parent="UIManager/InventoryUI/InventoryPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 60.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1, 0.1, 0.1, 1)
