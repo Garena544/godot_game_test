@@ -342,7 +342,7 @@ func start_free_dialogue_with_context(context: String):
 	var npc_role = get_npc_role_from_context(context)
 	
 	# 设置当前剧情上下文
-	current_context = "你是一个互联网公司的程序员，正在与" + npc_role + "对话。当前剧情：" + context + "\n\n请以" + npc_role + "的身份，用自然、友好的语气与玩家对话，并根据剧情给出合适的回复。"
+	current_context = "你是一个互联网公司的程序员，正在与" + npc_role + "对话。当前剧情：" + context + "\n\n请以" + npc_role + "的身份，用自然、简洁的语气与玩家对话。直接回复，不要使用任何标签或格式。"
 	
 	# 清空对话历史
 	conversation_history = []
@@ -385,7 +385,7 @@ func send_message_to_ai(user_message: String):
 			{"role": "system", "content": current_context}
 		] + conversation_history,
 		"temperature": 0.7,
-		"max_tokens": 200
+		"max_tokens": 500  # 增加token限制
 	}
 	
 	# 发送HTTP请求
@@ -425,6 +425,11 @@ func _on_ai_response_received(result, response_code, headers, body):
 				print("提取的AI消息: ", ai_message)
 				print("AI消息长度: ", ai_message.length())
 				
+				# 清理AI回复内容
+				ai_message = clean_ai_response(ai_message)
+				
+				print("清理后的AI消息: ", ai_message)
+				
 				# 添加AI回复到历史
 				conversation_history.append({"role": "assistant", "content": ai_message})
 				
@@ -446,6 +451,32 @@ func _on_ai_response_received(result, response_code, headers, body):
 		show_default_response("")
 	
 	print("=== AI回复处理结束 ===")
+
+func clean_ai_response(response: String) -> String:
+	"""清理AI回复内容"""
+	var cleaned = response
+	
+	# 移除<think>标签及其内容
+	var think_start = cleaned.find("<think>")
+	if think_start != -1:
+		var think_end = cleaned.find("</think>")
+		if think_end != -1:
+			cleaned = cleaned.substr(0, think_start) + cleaned.substr(think_end + 8)
+		else:
+			cleaned = cleaned.substr(0, think_start)
+	
+	# 移除其他可能的标签
+	cleaned = cleaned.replace("<s>", "").replace("</s>", "")
+	cleaned = cleaned.replace("<|im_start|>", "").replace("<|im_end|>", "")
+	
+	# 清理多余的空白字符
+	cleaned = cleaned.strip_edges()
+	
+	# 如果清理后为空，返回默认回复
+	if cleaned.is_empty():
+		cleaned = "我理解你的意思，让我们继续对话吧。"
+	
+	return cleaned
 
 func show_default_response(user_message: String):
 	"""显示默认回复（当AI不可用时）"""
