@@ -34,7 +34,8 @@ var dialogues: Dictionary = {
 			{"id": "snooze_alarm", "text": "再睡5分钟"},
 			{"id": "check_phone", "text": "先看看手机消息"},
 			{"id": "free_dialogue", "text": "开始自由对话"}
-		]
+		],
+		"has_npc_dialogue": false  # 这是场景描述，不是NPC对话
 	},
 	"get_up_early": {
 		"text": "你精神饱满地起床了！\n\n洗漱完毕，准备出门。今天感觉状态不错。",
@@ -42,7 +43,8 @@ var dialogues: Dictionary = {
 			{"id": "take_bus", "text": "坐公交车去公司"},
 			{"id": "take_subway", "text": "坐地铁去公司"},
 			{"id": "order_breakfast", "text": "先点个早餐外卖"}
-		]
+		],
+		"has_npc_dialogue": false
 	},
 	"snooze_alarm": {
 		"text": "你又睡了5分钟...\n\n现在8:15了，时间有点紧张。",
@@ -50,7 +52,8 @@ var dialogues: Dictionary = {
 			{"id": "rush_out", "text": "匆忙出门"},
 			{"id": "skip_breakfast", "text": "不吃早餐直接去公司"},
 			{"id": "call_taxi", "text": "叫个出租车"}
-		]
+		],
+		"has_npc_dialogue": false
 	},
 	"check_phone": {
 		"text": "你拿起手机，发现老板在群里@了所有人：\n\n'今天有个紧急需求，大家早点到公司！'",
@@ -58,7 +61,8 @@ var dialogues: Dictionary = {
 			{"id": "rush_to_company", "text": "立刻出发去公司"},
 			{"id": "reply_ok", "text": "回复'收到'然后准备"},
 			{"id": "ignore_message", "text": "假装没看到"}
-		]
+		],
+		"has_npc_dialogue": true  # 这是老板的消息，需要NPC对话
 	},
 	"arrive_company": {
 		"text": "9:00，你到达公司。\n\n同事小王正在咖啡机前排队，看起来有点疲惫。",
@@ -66,7 +70,8 @@ var dialogues: Dictionary = {
 			{"id": "greet_wang", "text": "和小王打招呼"},
 			{"id": "go_desk", "text": "直接去工位"},
 			{"id": "get_coffee", "text": "也去排队买咖啡"}
-		]
+		],
+		"has_npc_dialogue": false
 	},
 	"greet_wang": {
 		"text": "'早啊小王！'你打招呼。\n\n'早...昨晚又加班到12点，这个bug太难搞了。'小王苦笑道。",
@@ -74,14 +79,16 @@ var dialogues: Dictionary = {
 			{"id": "help_wang", "text": "'要不要我帮你看看？'"},
 			{"id": "sympathize", "text": "'辛苦了，互联网人都不容易'"},
 			{"id": "focus_own_work", "text": "'我先去忙自己的事了'"}
-		]
+		],
+		"has_npc_dialogue": true  # 这是和小王的对话
 	},
 	"help_wang": {
 		"text": "你决定帮助小王。\n\n经过半小时的调试，你们一起解决了这个bug。小王很感激。",
 		"choices": [
 			{"id": "continue_work", "text": "继续自己的工作"},
 			{"id": "team_lunch", "text": "约小王一起吃午饭"}
-		]
+		],
+		"has_npc_dialogue": false
 	},
 	"morning_meeting": {
 		"text": "10:00，晨会时间。\n\n产品经理小李正在讲解新功能需求，看起来又是一个'简单'的需求。",
@@ -89,7 +96,8 @@ var dialogues: Dictionary = {
 			{"id": "ask_questions", "text": "提出技术问题"},
 			{"id": "accept_quietly", "text": "默默接受"},
 			{"id": "suggest_timeline", "text": "建议合理的时间安排"}
-		]
+		],
+		"has_npc_dialogue": false
 	},
 	"ask_questions": {
 		"text": "你提出了几个技术细节问题。\n\n小李有点不耐烦：'这个很简单，你们程序员总是想得太复杂。'",
@@ -97,7 +105,8 @@ var dialogues: Dictionary = {
 			{"id": "insist_details", "text": "坚持要详细讨论"},
 			{"id": "compromise", "text": "妥协，先做出来看看"},
 			{"id": "document_concerns", "text": "把问题记录下来"}
-		]
+		],
+		"has_npc_dialogue": true  # 这是和小李的对话
 	},
 	"lunch_time": {
 		"text": "12:00，午饭时间。\n\n同事们都在讨论去哪里吃饭。",
@@ -105,7 +114,8 @@ var dialogues: Dictionary = {
 			{"id": "company_canteen", "text": "去公司食堂"},
 			{"id": "order_delivery", "text": "点外卖"},
 			{"id": "go_outside", "text": "出去吃"}
-		]
+		],
+		"has_npc_dialogue": false
 	},
 	"afternoon_work": {
 		"text": "13:30，下午工作开始。\n\n你正在专注地写代码，突然测试小姐姐小红走了过来。",
@@ -113,7 +123,8 @@ var dialogues: Dictionary = {
 			{"id": "greet_hong", "text": "和小红打招呼"},
 			{"id": "focus_coding", "text": "继续专注写代码"},
 			{"id": "ask_test_status", "text": "询问测试进度"}
-		]
+		],
+		"has_npc_dialogue": false
 	},
 	"greet_hong": {
 		"text": "'小红，有什么问题吗？'你问道。\n\n'你昨天提交的代码有个小问题，能帮我看看吗？'小红说。",
@@ -121,14 +132,16 @@ var dialogues: Dictionary = {
 			{"id": "help_hong", "text": "立刻帮她解决"},
 			{"id": "schedule_later", "text": "约个时间稍后处理"},
 			{"id": "explain_priority", "text": "解释当前工作优先级"}
-		]
+		],
+		"has_npc_dialogue": true  # 这是和小红的对话
 	},
 	"help_hong": {
 		"text": "你花了一些时间帮小红解决了问题。\n\n她很感谢你的帮助，你们的关系更好了。",
 		"choices": [
 			{"id": "return_coding", "text": "回到自己的代码"},
 			{"id": "chat_more", "text": "多聊几句"}
-		]
+		],
+		"has_npc_dialogue": false
 	},
 	"evening_work": {
 		"text": "18:00，正常下班时间。\n\n但是你的代码还没写完，而且老板在群里问进度。",
@@ -136,21 +149,24 @@ var dialogues: Dictionary = {
 			{"id": "overtime_work", "text": "加班完成"},
 			{"id": "go_home", "text": "按时下班"},
 			{"id": "work_from_home", "text": "回家继续工作"}
-		]
+		],
+		"has_npc_dialogue": false
 	},
 	"overtime_work": {
 		"text": "你决定加班完成工作。\n\n20:00，终于完成了今天的任务。虽然很累，但很有成就感。",
 		"choices": [
 			{"id": "go_home_happy", "text": "开心地回家"},
 			{"id": "celebrate", "text": "和同事一起庆祝"}
-		]
+		],
+		"has_npc_dialogue": false
 	},
 	"go_home": {
 		"text": "你按时下班了。\n\n虽然工作没完成，但你觉得工作生活平衡很重要。",
 		"choices": [
 			{"id": "evening_rest", "text": "晚上好好休息"},
 			{"id": "plan_tomorrow", "text": "规划明天的工作"}
-		]
+		],
+		"has_npc_dialogue": false
 	},
 	"end_day": {
 		"text": "一天结束了。\n\n作为互联网牛马，你今天经历了各种挑战和选择。明天又是新的一天！",
@@ -158,7 +174,8 @@ var dialogues: Dictionary = {
 			{"id": "restart_day", "text": "重新开始这一天"},
 			{"id": "free_dialogue", "text": "开始自由对话"},
 			{"id": "end_game", "text": "结束游戏"}
-		]
+		],
+		"has_npc_dialogue": false
 	}
 }
 
@@ -212,8 +229,17 @@ func display_dialogue():
 	if current_dialogue.has("text"):
 		var ui_manager = get_node("../UIManager")
 		
-		# 自动启动自由对话模式
-		start_free_dialogue_with_context(current_dialogue["text"])
+		# 检查是否有NPC对话
+		if current_dialogue.has("has_npc_dialogue") and current_dialogue["has_npc_dialogue"]:
+			# 有NPC对话，启动自由对话模式
+			start_free_dialogue_with_context(current_dialogue["text"])
+		else:
+			# 没有NPC对话，使用预设对话
+			ui_manager.show_dialogue(current_dialogue["text"])
+			
+			# 显示选择项
+			if current_dialogue.has("choices"):
+				ui_manager.show_choices(current_dialogue["choices"])
 
 func generate_llm_dialogue(original_text: String):
 	"""使用LLM生成对话"""
@@ -310,10 +336,13 @@ func start_free_dialogue():
 
 func start_free_dialogue_with_context(context: String):
 	"""根据剧情上下文启动自由对话"""
-	print("启动剧情自由对话，上下文：", context)
+	print("启动NPC对话，上下文：", context)
+	
+	# 根据剧情确定NPC角色
+	var npc_role = get_npc_role_from_context(context)
 	
 	# 设置当前剧情上下文
-	current_context = "你是一个互联网公司的程序员，正在经历一天的工作生活。当前剧情：" + context + "\n\n请用自然、友好的语气与玩家对话，并根据剧情给出合适的回复。"
+	current_context = "你是一个互联网公司的程序员，正在与" + npc_role + "对话。当前剧情：" + context + "\n\n请以" + npc_role + "的身份，用自然、友好的语气与玩家对话，并根据剧情给出合适的回复。"
 	
 	# 清空对话历史
 	conversation_history = []
@@ -327,7 +356,20 @@ func start_free_dialogue_with_context(context: String):
 	game_manager.change_state(game_manager.GameState.DIALOGUE)
 	
 	is_dialogue_active = true
-	print("剧情自由对话已启动")
+	print("NPC对话已启动")
+
+func get_npc_role_from_context(context: String) -> String:
+	"""根据剧情上下文确定NPC角色"""
+	if "老板" in context or "群里" in context:
+		return "老板"
+	elif "小王" in context:
+		return "同事小王"
+	elif "小李" in context:
+		return "产品经理小李"
+	elif "小红" in context:
+		return "测试小姐姐小红"
+	else:
+		return "同事"
 
 func send_message_to_ai(user_message: String):
 	"""发送消息到AI并获取回复"""
