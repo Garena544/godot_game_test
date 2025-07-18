@@ -62,7 +62,7 @@ func add_test_buttons():
 	# 创建测试LM Studio按钮
 	var test_button = Button.new()
 	test_button.text = "测试LM Studio连接"
-	test_button.position = Vector2(20, 100)
+	test_button.position = Vector2(20, 50)  # 降低位置
 	test_button.custom_minimum_size = Vector2(200, 40)
 	test_button.add_theme_font_size_override("font_size", 16)
 	test_button.connect("pressed", _on_test_lm_studio)
@@ -71,7 +71,7 @@ func add_test_buttons():
 	# 创建自由对话按钮
 	var free_dialogue_button = Button.new()
 	free_dialogue_button.text = "开始自由对话"
-	free_dialogue_button.position = Vector2(20, 150)
+	free_dialogue_button.position = Vector2(20, 100)  # 降低位置
 	free_dialogue_button.custom_minimum_size = Vector2(200, 40)
 	free_dialogue_button.add_theme_font_size_override("font_size", 16)
 	free_dialogue_button.connect("pressed", _on_start_free_dialogue)
@@ -80,7 +80,7 @@ func add_test_buttons():
 	# 创建启用LLM对话按钮
 	var llm_dialogue_button = Button.new()
 	llm_dialogue_button.text = "启用LLM对话"
-	llm_dialogue_button.position = Vector2(20, 200)
+	llm_dialogue_button.position = Vector2(20, 150)  # 降低位置
 	llm_dialogue_button.custom_minimum_size = Vector2(200, 40)
 	llm_dialogue_button.add_theme_font_size_override("font_size", 16)
 	llm_dialogue_button.connect("pressed", _on_enable_llm_dialogue)
@@ -205,7 +205,7 @@ func create_npc_dialogue_ui():
 	npc_dialogue_panel = Panel.new()
 	npc_dialogue_panel.anchors_preset = Control.PRESET_FULL_RECT
 	npc_dialogue_panel.offset_left = 100
-	npc_dialogue_panel.offset_top = 100
+	npc_dialogue_panel.offset_top = 200  # 增加顶部偏移，避免与测试按钮重叠
 	npc_dialogue_panel.offset_right = -100
 	npc_dialogue_panel.offset_bottom = -100
 	npc_dialogue_panel.visible = false
