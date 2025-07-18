@@ -404,31 +404,48 @@ func send_message_to_ai(user_message: String):
 
 func _on_ai_response_received(result, response_code, headers, body):
 	"""处理AI回复"""
+	print("=== AI回复处理开始 ===")
+	print("响应状态码: ", response_code)
+	print("响应头: ", headers)
+	print("响应体长度: ", body.size())
+	
 	if response_code == 200:
 		var json = JSON.new()
 		var parse_result = json.parse(body.get_string_from_utf8())
 		
+		print("JSON解析结果: ", parse_result)
+		
 		if parse_result == OK:
 			var response_data = json.data
+			print("响应数据: ", response_data)
+			
 			if response_data.has("choices") and response_data["choices"].size() > 0:
 				var ai_message = response_data["choices"][0]["message"]["content"]
+				
+				print("提取的AI消息: ", ai_message)
+				print("AI消息长度: ", ai_message.length())
 				
 				# 添加AI回复到历史
 				conversation_history.append({"role": "assistant", "content": ai_message})
 				
 				# 显示AI回复
 				var ui_manager = get_node("../UIManager")
+				print("调用UI管理器显示AI回复...")
 				ui_manager.show_ai_response(ai_message)
 				
-				print("AI回复: ", ai_message)
+				print("AI回复处理完成")
 			else:
+				print("响应中没有choices或choices为空")
 				show_default_response("")
 		else:
 			print("JSON解析失败")
 			show_default_response("")
 	else:
 		print("HTTP请求失败，状态码: ", response_code)
+		print("错误响应体: ", body.get_string_from_utf8())
 		show_default_response("")
+	
+	print("=== AI回复处理结束 ===")
 
 func show_default_response(user_message: String):
 	"""显示默认回复（当AI不可用时）"""

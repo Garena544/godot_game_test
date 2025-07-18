@@ -236,14 +236,21 @@ func add_user_message(message: String):
 
 func add_ai_message(message: String):
 	"""添加AI消息到聊天界面"""
+	print("添加AI消息到聊天界面: ", message)
+	
 	var message_label = Label.new()
 	message_label.text = "AI: " + message
 	message_label.add_theme_font_size_override("font_size", 16)
 	message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	message_label.modulate = Color(1.0, 0.9, 0.8)
 	
+	print("创建AI消息标签完成")
+	
 	chat_container.add_child(message_label)
+	print("AI消息已添加到聊天容器")
+	
 	scroll_to_bottom()
+	print("滚动到底部完成")
 
 func scroll_to_bottom():
 	"""滚动到底部"""
@@ -384,7 +391,13 @@ func send_message(message: String):
 
 func show_ai_response(response: String):
 	"""显示AI回复"""
+	print("=== UI管理器显示AI回复开始 ===")
+	print("收到的AI回复: ", response)
+	print("回复长度: ", response.length())
+	
 	add_ai_message(response)
+	
+	print("=== UI管理器显示AI回复结束 ===")
 
 func create_background():
 	"""创建背景图片"""
