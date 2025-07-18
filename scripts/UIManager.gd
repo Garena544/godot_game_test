@@ -542,6 +542,46 @@ func show_ai_response(response: String):
 	
 	print("=== UI管理器显示AI回复结束 ===")
 
+func show_npc_ai_response(response: String):
+	"""显示NPC对话的AI回复"""
+	print("显示NPC对话AI回复: ", response)
+	add_npc_ai_message(response)
+
+func _on_npc_message_submitted(text: String):
+	"""处理NPC对话消息提交"""
+	if text.strip_edges() != "":
+		send_npc_message(text)
+
+func _on_npc_send_button_pressed():
+	"""处理NPC对话发送按钮点击"""
+	var text = npc_message_input.text.strip_edges()
+	if text != "":
+		send_npc_message(text)
+
+func _on_npc_back_button_pressed():
+	"""处理NPC对话返回按钮点击"""
+	hide_npc_dialogue()
+	
+	# 显示剧情选择
+	show_story_choices()
+
+func send_npc_message(message: String):
+	"""发送NPC对话消息"""
+	print("发送NPC对话消息: ", message)
+	
+	# 添加用户消息到界面
+	add_npc_user_message(message)
+	
+	# 清空输入框
+	npc_message_input.text = ""
+	
+	# 发送消息到AI
+	var dialogue_manager = get_parent().get_node("DialogueManager")
+	dialogue_manager.send_message_to_ai(message)
+	
+	# 发出信号
+	message_sent.emit(message)
+
 func create_background():
 	"""创建背景图片"""
 	background_texture = TextureRect.new()
