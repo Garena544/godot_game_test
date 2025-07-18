@@ -211,6 +211,18 @@ func clear_chat_history():
 	for child in chat_container.get_children():
 		child.queue_free()
 
+func add_context_message(context: String):
+	"""添加剧情上下文消息"""
+	var context_label = Label.new()
+	context_label.text = "剧情背景: " + context
+	context_label.add_theme_font_size_override("font_size", 14)
+	context_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	context_label.modulate = Color(0.8, 0.8, 1.0)
+	context_label.custom_minimum_size = Vector2(0, 30)
+	
+	chat_container.add_child(context_label)
+	scroll_to_bottom()
+
 func add_user_message(message: String):
 	"""添加用户消息到聊天界面"""
 	var message_label = Label.new()
