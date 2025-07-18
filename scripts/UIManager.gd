@@ -5,6 +5,7 @@ class_name UIManager
 # 负责管理游戏的所有用户界面
 
 signal choice_selected(choice_id)
+signal message_sent(message: String)
 
 var dialogue_panel: Panel
 var dialogue_text: RichTextLabel
@@ -13,6 +14,13 @@ var inventory_panel: Panel
 var inventory_list: VBoxContainer
 var time_label: Label
 var background_texture: TextureRect
+
+# 自由对话UI组件
+var free_dialogue_panel: Panel
+var message_input: LineEdit
+var send_button: Button
+var chat_container: VBoxContainer
+var scroll_container: ScrollContainer
 
 func _ready():
 	# 获取UI节点引用
@@ -28,10 +36,185 @@ func _ready():
 	# 创建背景图片
 	create_background()
 	
+	# 创建自由对话UI
+	create_free_dialogue_ui()
+	
 	# 初始隐藏物品栏，但保持对话UI可见
 	hide_inventory()
 	
 	print("UIManager 初始化完成")
+
+func create_free_dialogue_ui():
+	"""创建自由对话UI"""
+	# 创建自由对话面板
+	free_dialogue_panel = Panel.new()
+	free_dialogue_panel.anchors_preset = Control.PRESET_FULL_RECT
+	free_dialogue_panel.offset_left = 50
+	free_dialogue_panel.offset_top = 50
+	free_dialogue_panel.offset_right = -50
+	free_dialogue_panel.offset_bottom = -50
+	free_dialogue_panel.visible = false
+	
+	# 设置面板样式
+	var style_box = StyleBoxFlat.new()
+	style_box.bg_color = Color(0.1, 0.1, 0.15, 0.9)
+	style_box.border_width_left = 2
+	style_box.border_width_right = 2
+	style_box.border_width_top = 2
+	style_box.border_width_bottom = 2
+	style_box.border_color = Color(0.3, 0.3, 0.5)
+	style_box.corner_radius_top_left = 10
+	style_box.corner_radius_top_right = 10
+	style_box.corner_radius_bottom_left = 10
+	style_box.corner_radius_bottom_right = 10
+	free_dialogue_panel.add_theme_stylebox_override("panel", style_box)
+	
+	# 创建标题
+	var title_label = Label.new()
+	title_label.text = "自由对话模式"
+	title_label.anchors_preset = Control.PRESET_TOP_WIDE
+	title_label.offset_left = 20
+	title_label.offset_top = 20
+	title_label.offset_right = -20
+	title_label.add_theme_font_size_override("font_size", 24)
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	
+	# 创建聊天容器
+	scroll_container = ScrollContainer.new()
+	scroll_container.anchors_preset = Control.PRESET_FULL_RECT
+	scroll_container.offset_left = 20
+	scroll_container.offset_top = 60
+	scroll_container.offset_right = -20
+	scroll_container.offset_bottom = -120
+	
+	chat_container = VBoxContainer.new()
+	chat_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chat_container.add_theme_constant_override("separation", 10)
+	
+	scroll_container.add_child(chat_container)
+	
+	# 创建输入区域
+	var input_container = HBoxContainer.new()
+	input_container.anchors_preset = Control.PRESET_BOTTOM_WIDE
+	input_container.offset_left = 20
+	input_container.offset_bottom = -20
+	input_container.offset_right = -20
+	input_container.add_theme_constant_override("separation", 10)
+	
+	# 创建输入框
+	message_input = LineEdit.new()
+	message_input.placeholder_text = "输入你的消息..."
+	message_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	message_input.add_theme_font_size_override("font_size", 16)
+	message_input.connect("text_submitted", _on_message_submitted)
+	
+	# 创建发送按钮
+	send_button = Button.new()
+	send_button.text = "发送"
+	send_button.custom_minimum_size = Vector2(80, 40)
+	send_button.add_theme_font_size_override("font_size", 16)
+	send_button.connect("pressed", _on_send_button_pressed)
+	
+	# 创建返回按钮
+	var back_button = Button.new()
+	back_button.text = "返回"
+	back_button.custom_minimum_size = Vector2(80, 40)
+	back_button.add_theme_font_size_override("font_size", 16)
+	back_button.connect("pressed", _on_back_button_pressed)
+	
+	# 添加组件到输入容器
+	input_container.add_child(message_input)
+	input_container.add_child(send_button)
+	input_container.add_child(back_button)
+	
+	# 添加所有组件到面板
+	free_dialogue_panel.add_child(title_label)
+	free_dialogue_panel.add_child(scroll_container)
+	free_dialogue_panel.add_child(input_container)
+	
+	# 添加到场景
+	add_child(free_dialogue_panel)
+
+func show_free_dialogue():
+	"""显示自由对话界面"""
+	free_dialogue_panel.show()
+	message_input.grab_focus()
+	print("显示自由对话界面")
+
+func hide_free_dialogue():
+	"""隐藏自由对话界面"""
+	free_dialogue_panel.hide()
+	clear_chat_history()
+
+func clear_chat_history():
+	"""清除聊天历史"""
+	for child in chat_container.get_children():
+		child.queue_free()
+
+func add_user_message(message: String):
+	"""添加用户消息到聊天界面"""
+	var message_label = Label.new()
+	message_label.text = "你: " + message
+	message_label.add_theme_font_size_override("font_size", 16)
+	message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	message_label.modulate = Color(0.8, 0.9, 1.0)
+	
+	chat_container.add_child(message_label)
+	scroll_to_bottom()
+
+func add_ai_message(message: String):
+	"""添加AI消息到聊天界面"""
+	var message_label = Label.new()
+	message_label.text = "AI: " + message
+	message_label.add_theme_font_size_override("font_size", 16)
+	message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	message_label.modulate = Color(1.0, 0.9, 0.8)
+	
+	chat_container.add_child(message_label)
+	scroll_to_bottom()
+
+func scroll_to_bottom():
+	"""滚动到底部"""
+	await get_tree().process_frame
+	scroll_container.ensure_control_visible(chat_container.get_child(chat_container.get_child_count() - 1))
+
+func _on_message_submitted(text: String):
+	"""处理消息提交"""
+	if text.strip_edges() != "":
+		send_message(text)
+
+func _on_send_button_pressed():
+	"""处理发送按钮点击"""
+	var text = message_input.text.strip_edges()
+	if text != "":
+		send_message(text)
+
+func _on_back_button_pressed():
+	"""处理返回按钮点击"""
+	hide_free_dialogue()
+	
+	# 返回主对话
+	var dialogue_manager = get_node("../DialogueManager")
+	dialogue_manager.end_dialogue()
+
+func send_message(message: String):
+	"""发送消息"""
+	# 添加用户消息到界面
+	add_user_message(message)
+	
+	# 清空输入框
+	message_input.text = ""
+	
+	# 发送消息到AI
+	var dialogue_manager = get_node("../DialogueManager")
+	dialogue_manager.send_message_to_ai(message)
+	
+	# 发出信号
+	message_sent.emit(message)
+
+func show_ai_response(response: String):
+	"""显示AI回复"""
+	add_ai_message(response)
 
 func create_background():
 	"""创建背景图片"""
@@ -249,65 +432,36 @@ func show_end_summary(summary_text: String):
 	summary_label.add_theme_font_size_override("font_size", 16)
 	summary_label.fit_content = true
 	
-	# 创建按钮容器
-	var button_container = HBoxContainer.new()
-	button_container.anchors_preset = Control.PRESET_BOTTOM_WIDE
-	button_container.offset_left = 20
-	button_container.offset_right = -20
-	button_container.offset_bottom = -20
-	button_container.add_theme_constant_override("separation", 20)
+	# 创建关闭按钮
+	var close_button = Button.new()
+	close_button.text = "关闭"
+	close_button.anchors_preset = Control.PRESET_BOTTOM_WIDE
+	close_button.offset_left = 350
+	close_button.offset_bottom = -20
+	close_button.offset_right = -350
+	close_button.custom_minimum_size = Vector2(0, 40)
+	close_button.add_theme_font_size_override("font_size", 16)
+	close_button.connect("pressed", summary_panel.queue_free)
 	
-	# 创建重新开始按钮
-	var restart_button = Button.new()
-	restart_button.text = "重新开始"
-	restart_button.custom_minimum_size = Vector2(150, 50)
-	restart_button.add_theme_font_size_override("font_size", 18)
-	restart_button.pressed.connect(_on_restart_button_pressed)
-	
-	# 创建退出按钮
-	var quit_button = Button.new()
-	quit_button.text = "退出游戏"
-	quit_button.custom_minimum_size = Vector2(150, 50)
-	quit_button.add_theme_font_size_override("font_size", 18)
-	quit_button.pressed.connect(_on_quit_button_pressed)
-	
-	# 添加按钮到容器
-	button_container.add_child(restart_button)
-	button_container.add_child(quit_button)
-	
-	# 添加所有元素到总结面板
+	# 添加组件到面板
 	summary_panel.add_child(title_label)
 	summary_panel.add_child(summary_label)
-	summary_panel.add_child(button_container)
+	summary_panel.add_child(close_button)
 	
-	# 将总结面板添加到UI的最顶层
+	# 添加到场景
 	add_child(summary_panel)
-	summary_panel.set_process_mode(Node.PROCESS_MODE_ALWAYS)
-	
-	print("总结面板已创建，文本长度: ", summary_text.length())
 
 func create_panel_style() -> StyleBoxFlat:
 	"""创建面板样式"""
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.1, 0.1, 0.15, 0.95)
-	style.border_width_left = 2
-	style.border_width_right = 2
-	style.border_width_top = 2
-	style.border_width_bottom = 2
-	style.border_color = Color(0.3, 0.3, 0.4, 1.0)
-	style.corner_radius_top_left = 10
-	style.corner_radius_top_right = 10
-	style.corner_radius_bottom_left = 10
-	style.corner_radius_bottom_right = 10
-	return style
-
-func _on_restart_button_pressed():
-	"""重新开始游戏"""
-	print("重新开始游戏")
-	# 重新加载场景
-	get_tree().reload_current_scene()
-
-func _on_quit_button_pressed():
-	"""退出游戏"""
-	print("退出游戏")
-	get_tree().quit() 
+	var style_box = StyleBoxFlat.new()
+	style_box.bg_color = Color(0.1, 0.1, 0.15, 0.95)
+	style_box.border_width_left = 2
+	style_box.border_width_right = 2
+	style_box.border_width_top = 2
+	style_box.border_width_bottom = 2
+	style_box.border_color = Color(0.3, 0.3, 0.5)
+	style_box.corner_radius_top_left = 10
+	style_box.corner_radius_top_right = 10
+	style_box.corner_radius_bottom_left = 10
+	style_box.corner_radius_bottom_right = 10
+	return style_box 

@@ -20,6 +20,37 @@ func _ready():
 	
 	# 强制显示对话
 	call_deferred("force_show_dialogue")
+	
+	# 添加测试按钮
+	call_deferred("add_test_buttons")
+
+func add_test_buttons():
+	"""添加测试按钮"""
+	# 创建测试LM Studio按钮
+	var test_button = Button.new()
+	test_button.text = "测试LM Studio连接"
+	test_button.position = Vector2(20, 100)
+	test_button.connect("pressed", _on_test_lm_studio)
+	add_child(test_button)
+	
+	# 创建自由对话按钮
+	var free_dialogue_button = Button.new()
+	free_dialogue_button.text = "开始自由对话"
+	free_dialogue_button.position = Vector2(20, 140)
+	free_dialogue_button.connect("pressed", _on_start_free_dialogue)
+	add_child(free_dialogue_button)
+
+func _on_test_lm_studio():
+	"""测试LM Studio连接"""
+	print("开始测试LM Studio连接...")
+	var test_script = load("res://scripts/LMStudioTest.gd").new()
+	add_child(test_script)
+
+func _on_start_free_dialogue():
+	"""开始自由对话"""
+	print("开始自由对话...")
+	var dialogue_manager = get_node("DialogueManager")
+	dialogue_manager.start_free_dialogue()
 
 func force_show_dialogue():
 	"""强制显示对话界面"""

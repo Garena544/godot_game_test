@@ -19,6 +19,11 @@ var current_time: int = 8  # 早上8点开始
 var time_minutes: int = 0
 var day_events: Array = []
 
+# LM Studio 配置
+var lm_studio_url: String = "http://127.0.0.1:1234/v1/chat/completions"
+var conversation_history: Array = []
+var current_context: String = ""
+
 # 对话数据 - 互联网牛马的一天
 var dialogues: Dictionary = {
 	"wake_up": {
@@ -26,7 +31,8 @@ var dialogues: Dictionary = {
 		"choices": [
 			{"id": "get_up_early", "text": "立刻起床，精神饱满"},
 			{"id": "snooze_alarm", "text": "再睡5分钟"},
-			{"id": "check_phone", "text": "先看看手机消息"}
+			{"id": "check_phone", "text": "先看看手机消息"},
+			{"id": "free_dialogue", "text": "开始自由对话"}
 		]
 	},
 	"get_up_early": {
@@ -149,6 +155,7 @@ var dialogues: Dictionary = {
 		"text": "一天结束了。\n\n作为互联网牛马，你今天经历了各种挑战和选择。明天又是新的一天！",
 		"choices": [
 			{"id": "restart_day", "text": "重新开始这一天"},
+			{"id": "free_dialogue", "text": "开始自由对话"},
 			{"id": "end_game", "text": "结束游戏"}
 		]
 	}
@@ -164,6 +171,14 @@ func _ready():
 	
 	# 初始化时间
 	update_time_display()
+	
+	# 初始化对话历史
+	initialize_conversation()
+
+func initialize_conversation():
+	"""初始化对话历史"""
+	conversation_history = []
+	current_context = "你是一个互联网公司的程序员，正在经历一天的工作生活。请用自然、友好的语气与玩家对话。"
 
 func start_dialogue(dialogue_id: String):
 	"""开始对话"""
@@ -191,6 +206,96 @@ func display_dialogue():
 		# 显示选择项
 		if current_dialogue.has("choices"):
 			ui_manager.show_choices(current_dialogue["choices"])
+
+func start_free_dialogue():
+	"""开始自由对话模式"""
+	is_dialogue_active = true
+	
+	# 改变游戏状态
+	var game_manager = get_node("../GameManager")
+	game_manager.change_state(game_manager.GameState.DIALOGUE)
+	
+	# 显示自由对话UI
+	var ui_manager = get_node("../UIManager")
+	ui_manager.show_free_dialogue()
+	
+	print("开始自由对话模式")
+
+func send_message_to_ai(user_message: String):
+	"""发送消息到AI并获取回复"""
+	print("发送消息到AI: ", user_message)
+	
+	# 添加用户消息到历史
+	conversation_history.append({"role": "user", "content": user_message})
+	
+	# 构建请求数据
+	var request_data = {
+		"model": "local-model",  # LM Studio 本地模型
+		"messages": [
+			{"role": "system", "content": current_context}
+		] + conversation_history,
+		"temperature": 0.7,
+		"max_tokens": 200
+	}
+	
+	# 发送HTTP请求
+	var http_request = HTTPRequest.new()
+	add_child(http_request)
+	http_request.connect("request_completed", _on_ai_response_received)
+	
+	var headers = ["Content-Type: application/json"]
+	var json_string = JSON.stringify(request_data)
+	
+	var error = http_request.request(lm_studio_url, headers, HTTPClient.METHOD_POST, json_string)
+	if error != OK:
+		print("HTTP请求失败: ", error)
+		# 如果AI不可用，显示默认回复
+		show_default_response(user_message)
+
+func _on_ai_response_received(result, response_code, headers, body):
+	"""处理AI回复"""
+	if response_code == 200:
+		var json = JSON.new()
+		var parse_result = json.parse(body.get_string_from_utf8())
+		
+		if parse_result == OK:
+			var response_data = json.data
+			if response_data.has("choices") and response_data["choices"].size() > 0:
+				var ai_message = response_data["choices"][0]["message"]["content"]
+				
+				# 添加AI回复到历史
+				conversation_history.append({"role": "assistant", "content": ai_message})
+				
+				# 显示AI回复
+				var ui_manager = get_node("../UIManager")
+				ui_manager.show_ai_response(ai_message)
+				
+				print("AI回复: ", ai_message)
+			else:
+				show_default_response("")
+		else:
+			print("JSON解析失败")
+			show_default_response("")
+	else:
+		print("HTTP请求失败，状态码: ", response_code)
+		show_default_response("")
+
+func show_default_response(user_message: String):
+	"""显示默认回复（当AI不可用时）"""
+	var default_responses = [
+		"我理解你的想法。",
+		"这确实是个有趣的观点。",
+		"让我们继续讨论这个话题。",
+		"你说得很有道理。",
+		"我需要时间思考一下。"
+	]
+	
+	var random_response = default_responses[randi() % default_responses.size()]
+	
+	var ui_manager = get_node("../UIManager")
+	ui_manager.show_ai_response(random_response)
+	
+	print("显示默认回复: ", random_response)
 
 func advance_time(minutes: int):
 	"""推进时间"""
@@ -366,6 +471,9 @@ func _on_choice_selected(choice_id: String):
 			# 游戏结束
 			var game_manager = get_node("../GameManager")
 			game_manager.end_game()
+		"free_dialogue":
+			# 开始自由对话
+			start_free_dialogue()
 		_:
 			# 默认继续探索
 			start_dialogue("wake_up")
