@@ -192,6 +192,15 @@ func show_free_dialogue():
 	message_input.grab_focus()
 	print("显示自由对话界面")
 
+func show_free_dialogue_with_context(context: String):
+	"""显示带剧情上下文的自由对话界面"""
+	free_dialogue_panel.show()
+	message_input.grab_focus()
+	
+	# 显示剧情上下文
+	add_context_message(context)
+	print("显示带上下文的自由对话界面")
+
 func hide_free_dialogue():
 	"""隐藏自由对话界面"""
 	free_dialogue_panel.hide()
@@ -244,8 +253,106 @@ func _on_back_button_pressed():
 	"""处理返回按钮点击"""
 	hide_free_dialogue()
 	
-	# 返回主对话
-	var dialogue_manager = get_node("../DialogueManager")
+	# 显示剧情选择
+	show_story_choices()
+
+func show_story_choices():
+	"""显示剧情选择"""
+	# 创建选择面板
+	var choice_panel = Panel.new()
+	choice_panel.anchors_preset = Control.PRESET_CENTER
+	choice_panel.custom_minimum_size = Vector2(400, 200)
+	choice_panel.position = Vector2(300, 250)
+	
+	# 设置面板样式
+	var style_box = StyleBoxFlat.new()
+	style_box.bg_color = Color(0.1, 0.1, 0.15, 0.95)
+	style_box.border_width_left = 2
+	style_box.border_width_right = 2
+	style_box.border_width_top = 2
+	style_box.border_width_bottom = 2
+	style_box.border_color = Color(0.3, 0.3, 0.5)
+	style_box.corner_radius_top_left = 10
+	style_box.corner_radius_top_right = 10
+	style_box.corner_radius_bottom_left = 10
+	style_box.corner_radius_bottom_right = 10
+	choice_panel.add_theme_stylebox_override("panel", style_box)
+	
+	# 创建标题
+	var title_label = Label.new()
+	title_label.text = "选择下一步"
+	title_label.anchors_preset = Control.PRESET_TOP_WIDE
+	title_label.offset_left = 20
+	title_label.offset_top = 20
+	title_label.offset_right = -20
+	title_label.add_theme_font_size_override("font_size", 18)
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	
+	# 创建按钮容器
+	var button_container = VBoxContainer.new()
+	button_container.anchors_preset = Control.PRESET_FULL_RECT
+	button_container.offset_left = 20
+	button_container.offset_top = 60
+	button_container.offset_right = -20
+	button_container.offset_bottom = -20
+	button_container.add_theme_constant_override("separation", 10)
+	
+	# 继续剧情按钮
+	var continue_button = Button.new()
+	continue_button.text = "继续剧情"
+	continue_button.custom_minimum_size = Vector2(0, 40)
+	continue_button.add_theme_font_size_override("font_size", 16)
+	continue_button.connect("pressed", _on_continue_story)
+	
+	# 结束对话按钮
+	var end_button = Button.new()
+	end_button.text = "结束对话"
+	end_button.custom_minimum_size = Vector2(0, 40)
+	end_button.add_theme_font_size_override("font_size", 16)
+	end_button.connect("pressed", _on_end_dialogue)
+	
+	# 添加按钮到容器
+	button_container.add_child(continue_button)
+	button_container.add_child(end_button)
+	
+	# 添加组件到面板
+	choice_panel.add_child(title_label)
+	choice_panel.add_child(button_container)
+	
+	# 添加到场景
+	add_child(choice_panel)
+
+func _on_continue_story():
+	"""继续剧情"""
+	print("继续剧情...")
+	
+	# 移除选择面板
+	for child in get_children():
+		if child is Panel and child != free_dialogue_panel:
+			child.queue_free()
+	
+	# 获取当前对话的选择项
+	var dialogue_manager = get_parent().get_node("DialogueManager")
+	var current_dialogue = dialogue_manager.current_dialogue
+	
+	if current_dialogue.has("choices"):
+		# 显示选择项
+		show_choices(current_dialogue["choices"])
+	else:
+		# 结束对话
+		dialogue_manager.end_dialogue()
+
+func _on_end_dialogue():
+	"""结束对话"""
+	print("结束对话...")
+	
+	# 移除选择面板
+	for child in get_children():
+		if child is Panel and child != free_dialogue_panel:
+			child.queue_free()
+	
+	# 结束对话
+	var dialogue_manager = get_parent().get_node("DialogueManager")
 	dialogue_manager.end_dialogue()
 
 func send_message(message: String):

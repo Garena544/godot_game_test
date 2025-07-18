@@ -212,16 +212,8 @@ func display_dialogue():
 	if current_dialogue.has("text"):
 		var ui_manager = get_node("../UIManager")
 		
-		if llm_enabled:
-			# 使用LLM生成对话
-			generate_llm_dialogue(current_dialogue["text"])
-		else:
-			# 使用预设对话
-			ui_manager.show_dialogue(current_dialogue["text"])
-			
-			# 显示选择项
-			if current_dialogue.has("choices"):
-				ui_manager.show_choices(current_dialogue["choices"])
+		# 自动启动自由对话模式
+		start_free_dialogue_with_context(current_dialogue["text"])
 
 func generate_llm_dialogue(original_text: String):
 	"""使用LLM生成对话"""
@@ -315,6 +307,27 @@ func start_free_dialogue():
 	ui_manager.show_free_dialogue()
 	
 	print("开始自由对话模式")
+
+func start_free_dialogue_with_context(context: String):
+	"""根据剧情上下文启动自由对话"""
+	print("启动剧情自由对话，上下文：", context)
+	
+	# 设置当前剧情上下文
+	current_context = "你是一个互联网公司的程序员，正在经历一天的工作生活。当前剧情：" + context + "\n\n请用自然、友好的语气与玩家对话，并根据剧情给出合适的回复。"
+	
+	# 清空对话历史
+	conversation_history = []
+	
+	# 显示自由对话UI
+	var ui_manager = get_node("../UIManager")
+	ui_manager.show_free_dialogue_with_context(context)
+	
+	# 改变游戏状态
+	var game_manager = get_node("../GameManager")
+	game_manager.change_state(game_manager.GameState.DIALOGUE)
+	
+	is_dialogue_active = true
+	print("剧情自由对话已启动")
 
 func send_message_to_ai(user_message: String):
 	"""发送消息到AI并获取回复"""
