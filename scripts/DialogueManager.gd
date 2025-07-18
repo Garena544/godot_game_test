@@ -347,9 +347,9 @@ func start_free_dialogue_with_context(context: String):
 	# 清空对话历史
 	conversation_history = []
 	
-	# 显示自由对话UI
+	# 显示NPC对话UI
 	var ui_manager = get_node("../UIManager")
-	ui_manager.show_free_dialogue_with_context(context)
+	ui_manager.show_npc_dialogue_with_context(context)
 	
 	# 改变游戏状态
 	var game_manager = get_node("../GameManager")
@@ -431,7 +431,7 @@ func _on_ai_response_received(result, response_code, headers, body):
 				# 显示AI回复
 				var ui_manager = get_node("../UIManager")
 				print("调用UI管理器显示AI回复...")
-				ui_manager.show_ai_response(ai_message)
+				ui_manager.show_npc_ai_response(ai_message)
 				
 				print("AI回复处理完成")
 			else:
@@ -460,7 +460,7 @@ func show_default_response(user_message: String):
 	var random_response = default_responses[randi() % default_responses.size()]
 	
 	var ui_manager = get_node("../UIManager")
-	ui_manager.show_ai_response(random_response)
+	ui_manager.show_npc_ai_response(random_response)
 	
 	print("显示默认回复: ", random_response)
 

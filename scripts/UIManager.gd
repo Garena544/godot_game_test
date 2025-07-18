@@ -22,6 +22,14 @@ var send_button: Button
 var chat_container: VBoxContainer
 var scroll_container: ScrollContainer
 
+# 独立对话框组件
+var npc_dialogue_panel: Panel
+var npc_dialogue_text: RichTextLabel
+var npc_input_container: HBoxContainer
+var npc_message_input: LineEdit
+var npc_send_button: Button
+var npc_back_button: Button
+
 func _ready():
 	# 获取UI节点引用
 	dialogue_panel = $DialogueUI/DialoguePanel
@@ -38,6 +46,9 @@ func _ready():
 	
 	# 创建自由对话UI
 	create_free_dialogue_ui()
+	
+	# 创建独立NPC对话框
+	create_npc_dialogue_ui()
 	
 	# 初始隐藏物品栏，但保持对话UI可见
 	hide_inventory()
@@ -186,6 +197,100 @@ func create_free_dialogue_ui():
 	# 添加到场景
 	add_child(free_dialogue_panel)
 
+func create_npc_dialogue_ui():
+	"""创建独立NPC对话框"""
+	print("创建独立NPC对话框")
+	
+	# 创建NPC对话面板
+	npc_dialogue_panel = Panel.new()
+	npc_dialogue_panel.anchors_preset = Control.PRESET_FULL_RECT
+	npc_dialogue_panel.offset_left = 100
+	npc_dialogue_panel.offset_top = 100
+	npc_dialogue_panel.offset_right = -100
+	npc_dialogue_panel.offset_bottom = -100
+	npc_dialogue_panel.visible = false
+	
+	# 设置面板样式
+	var style_box = StyleBoxFlat.new()
+	style_box.bg_color = Color(0.05, 0.05, 0.1, 0.95)
+	style_box.border_width_left = 3
+	style_box.border_width_right = 3
+	style_box.border_width_top = 3
+	style_box.border_width_bottom = 3
+	style_box.border_color = Color(0.4, 0.4, 0.6)
+	style_box.corner_radius_top_left = 15
+	style_box.corner_radius_top_right = 15
+	style_box.corner_radius_bottom_left = 15
+	style_box.corner_radius_bottom_right = 15
+	npc_dialogue_panel.add_theme_stylebox_override("panel", style_box)
+	
+	# 创建标题
+	var title_label = Label.new()
+	title_label.text = "NPC对话"
+	title_label.anchors_preset = Control.PRESET_TOP_WIDE
+	title_label.offset_left = 20
+	title_label.offset_top = 20
+	title_label.offset_right = -20
+	title_label.add_theme_font_size_override("font_size", 20)
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.modulate = Color(1.0, 1.0, 0.8)
+	
+	# 创建对话文本区域
+	npc_dialogue_text = RichTextLabel.new()
+	npc_dialogue_text.anchors_preset = Control.PRESET_FULL_RECT
+	npc_dialogue_text.offset_left = 20
+	npc_dialogue_text.offset_top = 60
+	npc_dialogue_text.offset_right = -20
+	npc_dialogue_text.offset_bottom = -120
+	npc_dialogue_text.bbcode_enabled = true
+	npc_dialogue_text.add_theme_font_size_override("font_size", 16)
+	npc_dialogue_text.fit_content = true
+	npc_dialogue_text.scroll_following = true
+	
+	# 创建输入区域
+	npc_input_container = HBoxContainer.new()
+	npc_input_container.anchors_preset = Control.PRESET_BOTTOM_WIDE
+	npc_input_container.offset_left = 20
+	npc_input_container.offset_bottom = -20
+	npc_input_container.offset_right = -20
+	npc_input_container.add_theme_constant_override("separation", 10)
+	
+	# 创建输入框
+	npc_message_input = LineEdit.new()
+	npc_message_input.placeholder_text = "输入你的消息..."
+	npc_message_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	npc_message_input.add_theme_font_size_override("font_size", 16)
+	npc_message_input.connect("text_submitted", _on_npc_message_submitted)
+	
+	# 创建发送按钮
+	npc_send_button = Button.new()
+	npc_send_button.text = "发送"
+	npc_send_button.custom_minimum_size = Vector2(80, 40)
+	npc_send_button.add_theme_font_size_override("font_size", 16)
+	npc_send_button.connect("pressed", _on_npc_send_button_pressed)
+	
+	# 创建返回按钮
+	npc_back_button = Button.new()
+	npc_back_button.text = "返回"
+	npc_back_button.custom_minimum_size = Vector2(80, 40)
+	npc_back_button.add_theme_font_size_override("font_size", 16)
+	npc_back_button.connect("pressed", _on_npc_back_button_pressed)
+	
+	# 添加组件到输入容器
+	npc_input_container.add_child(npc_message_input)
+	npc_input_container.add_child(npc_send_button)
+	npc_input_container.add_child(npc_back_button)
+	
+	# 添加所有组件到面板
+	npc_dialogue_panel.add_child(title_label)
+	npc_dialogue_panel.add_child(npc_dialogue_text)
+	npc_dialogue_panel.add_child(npc_input_container)
+	
+	# 添加到场景
+	add_child(npc_dialogue_panel)
+	
+	print("独立NPC对话框创建完成")
+
 func show_free_dialogue():
 	"""显示自由对话界面"""
 	free_dialogue_panel.show()
@@ -200,6 +305,44 @@ func show_free_dialogue_with_context(context: String):
 	# 显示剧情上下文
 	add_context_message(context)
 	print("显示带上下文的自由对话界面")
+
+func show_npc_dialogue_with_context(context: String):
+	"""显示NPC对话界面"""
+	print("显示NPC对话界面，上下文：", context)
+	
+	# 清空对话文本
+	npc_dialogue_text.text = ""
+	
+	# 添加剧情背景
+	add_npc_context_message(context)
+	
+	# 显示NPC对话面板
+	npc_dialogue_panel.show()
+	npc_message_input.grab_focus()
+	
+	print("NPC对话界面已显示")
+
+func add_npc_context_message(context: String):
+	"""添加NPC对话的剧情背景"""
+	var context_text = "[color=yellow]剧情背景: " + context + "[/color]\n\n"
+	npc_dialogue_text.text += context_text
+
+func add_npc_user_message(message: String):
+	"""添加用户消息到NPC对话"""
+	var user_text = "[color=cyan]你: " + message + "[/color]\n\n"
+	npc_dialogue_text.text += user_text
+	print("添加用户消息到NPC对话: ", message)
+
+func add_npc_ai_message(message: String):
+	"""添加AI回复到NPC对话"""
+	var ai_text = "[color=orange]NPC: " + message + "[/color]\n\n"
+	npc_dialogue_text.text += ai_text
+	print("添加AI回复到NPC对话: ", message)
+
+func hide_npc_dialogue():
+	"""隐藏NPC对话界面"""
+	npc_dialogue_panel.hide()
+	print("隐藏NPC对话界面")
 
 func hide_free_dialogue():
 	"""隐藏自由对话界面"""
