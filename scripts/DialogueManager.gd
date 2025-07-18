@@ -23,6 +23,7 @@ var day_events: Array = []
 var lm_studio_url: String = "http://127.0.0.1:1234/v1/chat/completions"
 var conversation_history: Array = []
 var current_context: String = ""
+var llm_enabled: bool = false
 
 # 对话数据 - 互联网牛马的一天
 var dialogues: Dictionary = {
@@ -180,6 +181,15 @@ func initialize_conversation():
 	conversation_history = []
 	current_context = "你是一个互联网公司的程序员，正在经历一天的工作生活。请用自然、友好的语气与玩家对话。"
 
+func enable_llm_dialogue():
+	"""启用LLM对话"""
+	llm_enabled = true
+	print("LLM对话已启用")
+	
+	# 显示通知
+	var ui_manager = get_node("../UIManager")
+	ui_manager.show_notification("LLM对话已启用！")
+
 func start_dialogue(dialogue_id: String):
 	"""开始对话"""
 	if dialogue_id in dialogues:
@@ -201,11 +211,96 @@ func display_dialogue():
 	"""显示当前对话"""
 	if current_dialogue.has("text"):
 		var ui_manager = get_node("../UIManager")
-		ui_manager.show_dialogue(current_dialogue["text"])
 		
-		# 显示选择项
-		if current_dialogue.has("choices"):
-			ui_manager.show_choices(current_dialogue["choices"])
+		if llm_enabled:
+			# 使用LLM生成对话
+			generate_llm_dialogue(current_dialogue["text"])
+		else:
+			# 使用预设对话
+			ui_manager.show_dialogue(current_dialogue["text"])
+			
+			# 显示选择项
+			if current_dialogue.has("choices"):
+				ui_manager.show_choices(current_dialogue["choices"])
+
+func generate_llm_dialogue(original_text: String):
+	"""使用LLM生成对话"""
+	print("使用LLM生成对话: ", original_text)
+	
+	# 构建提示词
+	var prompt = "你是一个互联网公司的程序员。请基于以下场景生成一段自然的对话：\n\n"
+	prompt += "场景：" + original_text + "\n\n"
+	prompt += "请用第一人称的语气，自然地描述这个场景，并给出几个选择选项。"
+	
+	# 发送到LLM
+	send_llm_prompt(prompt)
+
+func send_llm_prompt(prompt: String):
+	"""发送提示词到LLM"""
+	print("发送提示词到LLM: ", prompt)
+	
+	# 构建请求数据
+	var request_data = {
+		"model": "local-model",
+		"messages": [
+			{"role": "system", "content": current_context},
+			{"role": "user", "content": prompt}
+		],
+		"temperature": 0.7,
+		"max_tokens": 300
+	}
+	
+	# 发送HTTP请求
+	var http_request = HTTPRequest.new()
+	add_child(http_request)
+	http_request.connect("request_completed", _on_llm_dialogue_received)
+	
+	var headers = ["Content-Type: application/json"]
+	var json_string = JSON.stringify(request_data)
+	
+	var error = http_request.request(lm_studio_url, headers, HTTPClient.METHOD_POST, json_string)
+	if error != OK:
+		print("HTTP请求失败: ", error)
+		# 如果AI不可用，使用预设对话
+		fallback_to_preset_dialogue()
+
+func _on_llm_dialogue_received(result, response_code, headers, body):
+	"""处理LLM对话回复"""
+	if response_code == 200:
+		var json = JSON.new()
+		var parse_result = json.parse(body.get_string_from_utf8())
+		
+		if parse_result == OK:
+			var response_data = json.data
+			if response_data.has("choices") and response_data["choices"].size() > 0:
+				var ai_message = response_data["choices"][0]["message"]["content"]
+				
+				# 显示AI生成的对话
+				var ui_manager = get_node("../UIManager")
+				ui_manager.show_dialogue(ai_message)
+				
+				# 显示选择项（使用预设的选择项）
+				if current_dialogue.has("choices"):
+					ui_manager.show_choices(current_dialogue["choices"])
+				
+				print("LLM生成的对话: ", ai_message)
+			else:
+				fallback_to_preset_dialogue()
+		else:
+			print("JSON解析失败")
+			fallback_to_preset_dialogue()
+	else:
+		print("HTTP请求失败，状态码: ", response_code)
+		fallback_to_preset_dialogue()
+
+func fallback_to_preset_dialogue():
+	"""回退到预设对话"""
+	print("回退到预设对话")
+	var ui_manager = get_node("../UIManager")
+	ui_manager.show_dialogue(current_dialogue["text"])
+	
+	if current_dialogue.has("choices"):
+		ui_manager.show_choices(current_dialogue["choices"])
 
 func start_free_dialogue():
 	"""开始自由对话模式"""
