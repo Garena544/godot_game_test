@@ -436,6 +436,7 @@ func _on_ai_response_received(result, response_code, headers, body):
 				# 显示AI回复
 				var ui_manager = get_node("../UIManager")
 				print("调用UI管理器显示AI回复...")
+				print("UI管理器节点存在: ", ui_manager != null)
 				ui_manager.show_npc_ai_response(ai_message)
 				
 				print("AI回复处理完成")

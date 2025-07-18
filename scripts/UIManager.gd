@@ -55,57 +55,6 @@ func _ready():
 	
 	print("UIManager 初始化完成")
 
-func add_test_buttons():
-	"""添加测试按钮"""
-	print("添加测试按钮到UI管理器")
-	
-	# 创建测试LM Studio按钮
-	var test_button = Button.new()
-	test_button.text = "测试LM Studio连接"
-	test_button.position = Vector2(20, 50)  # 降低位置
-	test_button.custom_minimum_size = Vector2(200, 40)
-	test_button.add_theme_font_size_override("font_size", 16)
-	test_button.connect("pressed", _on_test_lm_studio)
-	add_child(test_button)
-	
-	# 创建自由对话按钮
-	var free_dialogue_button = Button.new()
-	free_dialogue_button.text = "开始自由对话"
-	free_dialogue_button.position = Vector2(20, 100)  # 降低位置
-	free_dialogue_button.custom_minimum_size = Vector2(200, 40)
-	free_dialogue_button.add_theme_font_size_override("font_size", 16)
-	free_dialogue_button.connect("pressed", _on_start_free_dialogue)
-	add_child(free_dialogue_button)
-	
-	# 创建启用LLM对话按钮
-	var llm_dialogue_button = Button.new()
-	llm_dialogue_button.text = "启用LLM对话"
-	llm_dialogue_button.position = Vector2(20, 150)  # 降低位置
-	llm_dialogue_button.custom_minimum_size = Vector2(200, 40)
-	llm_dialogue_button.add_theme_font_size_override("font_size", 16)
-	llm_dialogue_button.connect("pressed", _on_enable_llm_dialogue)
-	add_child(llm_dialogue_button)
-	
-	print("测试按钮已添加到UI管理器")
-
-func _on_test_lm_studio():
-	"""测试LM Studio连接"""
-	print("开始测试LM Studio连接...")
-	var test_script = load("res://scripts/LMStudioTest.gd").new()
-	get_parent().add_child(test_script)
-
-func _on_start_free_dialogue():
-	"""开始自由对话"""
-	print("开始自由对话...")
-	var dialogue_manager = get_parent().get_node("DialogueManager")
-	dialogue_manager.start_free_dialogue()
-
-func _on_enable_llm_dialogue():
-	"""启用LLM对话"""
-	print("启用LLM对话...")
-	var dialogue_manager = get_parent().get_node("DialogueManager")
-	dialogue_manager.enable_llm_dialogue()
-
 func create_free_dialogue_ui():
 	"""创建自由对话UI"""
 	# 创建自由对话面板
@@ -201,58 +150,79 @@ func create_npc_dialogue_ui():
 	"""创建独立NPC对话框"""
 	print("创建独立NPC对话框")
 	
-	# 创建NPC对话面板
+	# 创建NPC对话面板 - 作为主对话面板的子组件
 	npc_dialogue_panel = Panel.new()
-	npc_dialogue_panel.anchors_preset = Control.PRESET_FULL_RECT
-	npc_dialogue_panel.offset_left = 100
-	npc_dialogue_panel.offset_top = 200  # 增加顶部偏移，避免与测试按钮重叠
-	npc_dialogue_panel.offset_right = -100
-	npc_dialogue_panel.offset_bottom = -100
+	# 使用相对于主对话面板的位置，确保不遮挡输入框
+	npc_dialogue_panel.position = Vector2(20, 20)
+	npc_dialogue_panel.custom_minimum_size = Vector2(600, 300)  # 减小高度，避免遮挡
 	npc_dialogue_panel.visible = false
+	npc_dialogue_panel.z_index = 10  # 比主对话面板高，但比测试面板低
 	
-	# 设置面板样式
+	print("NPC对话面板基础属性设置完成")
+	print("面板位置: ", npc_dialogue_panel.position)
+	print("面板尺寸: ", npc_dialogue_panel.size)
+	print("面板最小尺寸: ", npc_dialogue_panel.custom_minimum_size)
+	print("面板层级: ", npc_dialogue_panel.z_index)
+	
+	# 设置面板样式 - 使用更明显的背景色
 	var style_box = StyleBoxFlat.new()
-	style_box.bg_color = Color(0.05, 0.05, 0.1, 0.95)
-	style_box.border_width_left = 3
-	style_box.border_width_right = 3
-	style_box.border_width_top = 3
-	style_box.border_width_bottom = 3
-	style_box.border_color = Color(0.4, 0.4, 0.6)
+	style_box.bg_color = Color(0.1, 0.1, 0.2, 0.98)  # 更明显的背景色
+	style_box.border_width_left = 5
+	style_box.border_width_right = 5
+	style_box.border_width_top = 5
+	style_box.border_width_bottom = 5
+	style_box.border_color = Color(0.6, 0.6, 0.8)  # 更明显的边框色
 	style_box.corner_radius_top_left = 15
 	style_box.corner_radius_top_right = 15
 	style_box.corner_radius_bottom_left = 15
 	style_box.corner_radius_bottom_right = 15
 	npc_dialogue_panel.add_theme_stylebox_override("panel", style_box)
 	
+	print("NPC对话面板创建完成，背景色: ", style_box.bg_color)
+	
 	# 创建标题
 	var title_label = Label.new()
 	title_label.text = "NPC对话"
-	title_label.anchors_preset = Control.PRESET_TOP_WIDE
-	title_label.offset_left = 20
-	title_label.offset_top = 20
-	title_label.offset_right = -20
+	title_label.position = Vector2(20, 20)
+	title_label.size = Vector2(560, 30)
 	title_label.add_theme_font_size_override("font_size", 20)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.modulate = Color(1.0, 1.0, 0.8)
 	
-	# 创建对话文本区域
+	print("标题标签创建完成")
+	
+	# 创建对话文本区域 - 减小高度
 	npc_dialogue_text = RichTextLabel.new()
-	npc_dialogue_text.anchors_preset = Control.PRESET_FULL_RECT
-	npc_dialogue_text.offset_left = 20
-	npc_dialogue_text.offset_top = 60
-	npc_dialogue_text.offset_right = -20
-	npc_dialogue_text.offset_bottom = -120
+	npc_dialogue_text.position = Vector2(20, 60)
+	npc_dialogue_text.size = Vector2(560, 150)  # 减小高度
 	npc_dialogue_text.bbcode_enabled = true
 	npc_dialogue_text.add_theme_font_size_override("font_size", 16)
 	npc_dialogue_text.fit_content = true
 	npc_dialogue_text.scroll_following = true
+	npc_dialogue_text.scroll_active = true
 	
-	# 创建输入区域
+	# 设置文本区域的背景色
+	var text_style = StyleBoxFlat.new()
+	text_style.bg_color = Color(0.05, 0.05, 0.1, 0.9)
+	text_style.border_width_left = 2
+	text_style.border_width_right = 2
+	text_style.border_width_top = 2
+	text_style.border_width_bottom = 2
+	text_style.border_color = Color(0.3, 0.3, 0.5)
+	text_style.corner_radius_top_left = 8
+	text_style.corner_radius_top_right = 8
+	text_style.corner_radius_bottom_left = 8
+	text_style.corner_radius_bottom_right = 8
+	npc_dialogue_text.add_theme_stylebox_override("normal", text_style)
+	
+	print("NPC对话文本区域创建完成")
+	print("文本区域位置: ", npc_dialogue_text.position)
+	print("文本区域尺寸: ", npc_dialogue_text.size)
+	
+	# 创建输入区域 - 调整位置
 	npc_input_container = HBoxContainer.new()
-	npc_input_container.anchors_preset = Control.PRESET_BOTTOM_WIDE
-	npc_input_container.offset_left = 20
-	npc_input_container.offset_bottom = -20
-	npc_input_container.offset_right = -20
+	npc_input_container.position = Vector2(20, 230)  # 调整位置
+	npc_input_container.size = Vector2(560, 50)
 	npc_input_container.add_theme_constant_override("separation", 10)
 	
 	# 创建输入框
@@ -281,13 +251,20 @@ func create_npc_dialogue_ui():
 	npc_input_container.add_child(npc_send_button)
 	npc_input_container.add_child(npc_back_button)
 	
+	print("输入区域创建完成")
+	
 	# 添加所有组件到面板
 	npc_dialogue_panel.add_child(title_label)
+	print("标题标签已添加到面板")
 	npc_dialogue_panel.add_child(npc_dialogue_text)
+	print("文本区域已添加到面板")
 	npc_dialogue_panel.add_child(npc_input_container)
+	print("输入区域已添加到面板")
 	
-	# 添加到场景
-	add_child(npc_dialogue_panel)
+	# 添加到主对话面板，而不是直接添加到场景
+	dialogue_panel.add_child(npc_dialogue_panel)
+	print("NPC对话面板已添加到主对话面板")
+	print("面板子节点数量: ", npc_dialogue_panel.get_child_count())
 	
 	print("独立NPC对话框创建完成")
 
@@ -310,39 +287,112 @@ func show_npc_dialogue_with_context(context: String):
 	"""显示NPC对话界面"""
 	print("显示NPC对话界面，上下文：", context)
 	
+	# 检查NPC对话文本对象是否存在
+	if npc_dialogue_text == null:
+		print("错误：npc_dialogue_text对象为空，重新创建NPC对话UI")
+		create_npc_dialogue_ui()
+	
+	# 不隐藏主对话界面，而是嵌入到其中
+	# hide_dialogue()  # 注释掉这行
+	
+	# 隐藏主对话面板的选择按钮，避免遮挡输入框
+	if choice_container != null:
+		choice_container.hide()
+		print("隐藏主对话选择按钮")
+	
+	# 创建测试面板
+	var test_panel = create_test_panel()
+	
 	# 清空对话文本
-	npc_dialogue_text.text = ""
-	
-	# 添加剧情背景
-	add_npc_context_message(context)
-	
-	# 显示NPC对话面板
-	npc_dialogue_panel.show()
-	npc_message_input.grab_focus()
-	
-	print("NPC对话界面已显示")
+	if npc_dialogue_text != null:
+		npc_dialogue_text.text = ""
+		print("清空NPC对话文本成功")
+		
+		# 添加测试文本，确保面板可见
+		npc_dialogue_text.text = "[color=red]测试：NPC对话面板已显示[/color]\n\n"
+		print("添加测试文本到NPC对话面板")
+		
+		# 添加剧情背景
+		add_npc_context_message(context)
+		
+		# 显示NPC对话面板
+		npc_dialogue_panel.show()
+		print("NPC对话面板显示状态: ", npc_dialogue_panel.visible)
+		print("NPC对话面板位置: ", npc_dialogue_panel.position)
+		print("NPC对话面板尺寸: ", npc_dialogue_panel.size)
+		print("NPC对话面板层级: ", npc_dialogue_panel.z_index)
+		print("NPC对话文本内容: ", npc_dialogue_text.text)
+		print("NPC对话面板子节点数量: ", npc_dialogue_panel.get_child_count())
+		
+		# 检查所有子节点的可见性
+		for i in range(npc_dialogue_panel.get_child_count()):
+			var child = npc_dialogue_panel.get_child(i)
+			print("子节点 ", i, " 类型: ", child.get_class(), " 可见性: ", child.visible)
+		
+		npc_message_input.grab_focus()
+		
+		# 确保面板在最前面 - 使用move_to_front()而不是raise()
+		npc_dialogue_panel.move_to_front()
+		
+		# 强制更新面板
+		npc_dialogue_panel.queue_redraw()
+		
+		print("NPC对话界面已显示")
+		
+		# 3秒后移除测试面板
+		await get_tree().create_timer(3.0).timeout
+		test_panel.queue_free()
+		print("测试面板已移除")
+	else:
+		print("错误：无法创建NPC对话文本对象")
 
 func add_npc_context_message(context: String):
 	"""添加NPC对话的剧情背景"""
-	var context_text = "[color=yellow]剧情背景: " + context + "[/color]\n\n"
-	npc_dialogue_text.text += context_text
+	if npc_dialogue_text != null:
+		var context_text = "[color=yellow]剧情背景: " + context + "[/color]\n\n"
+		npc_dialogue_text.text += context_text
+	else:
+		print("错误：npc_dialogue_text为空，无法添加剧情背景")
 
 func add_npc_user_message(message: String):
 	"""添加用户消息到NPC对话"""
-	var user_text = "[color=cyan]你: " + message + "[/color]\n\n"
-	npc_dialogue_text.text += user_text
-	print("添加用户消息到NPC对话: ", message)
+	if npc_dialogue_text != null:
+		var user_text = "[color=cyan]你: " + message + "[/color]\n\n"
+		npc_dialogue_text.text += user_text
+		print("添加用户消息到NPC对话: ", message)
+	else:
+		print("错误：npc_dialogue_text为空，无法添加用户消息")
 
 func add_npc_ai_message(message: String):
 	"""添加AI回复到NPC对话"""
-	var ai_text = "[color=orange]NPC: " + message + "[/color]\n\n"
-	npc_dialogue_text.text += ai_text
-	print("添加AI回复到NPC对话: ", message)
+	if npc_dialogue_text != null:
+		var ai_text = "[color=orange]NPC: " + message + "[/color]\n\n"
+		npc_dialogue_text.text += ai_text
+		print("添加AI回复到NPC对话: ", message)
+		
+		# 确保文本区域滚动到底部
+		await get_tree().process_frame
+		npc_dialogue_text.scroll_to_line(npc_dialogue_text.get_line_count() - 1)
+	else:
+		print("错误：npc_dialogue_text为空，无法添加AI回复")
 
 func hide_npc_dialogue():
 	"""隐藏NPC对话界面"""
 	npc_dialogue_panel.hide()
 	print("隐藏NPC对话界面")
+	
+	# 重新显示主对话面板的选择按钮
+	if choice_container != null:
+		choice_container.show()
+		print("重新显示主对话选择按钮")
+	
+	# 不需要重新显示主对话界面，因为它一直都在
+	# 只需要确保主对话面板是可见的
+	if dialogue_panel != null:
+		dialogue_panel.show()
+		print("主对话面板保持可见")
+	else:
+		print("错误：主对话面板为空")
 
 func hide_free_dialogue():
 	"""隐藏自由对话界面"""
@@ -545,7 +595,28 @@ func show_ai_response(response: String):
 func show_npc_ai_response(response: String):
 	"""显示NPC对话的AI回复"""
 	print("显示NPC对话AI回复: ", response)
+	
+	if npc_dialogue_panel != null:
+		print("NPC对话面板可见性: ", npc_dialogue_panel.visible)
+	else:
+		print("错误：npc_dialogue_panel为空")
+	
+	if npc_dialogue_text != null:
+		print("NPC对话文本内容长度: ", npc_dialogue_text.text.length())
+	else:
+		print("错误：npc_dialogue_text为空")
+	
 	add_npc_ai_message(response)
+	
+	if npc_dialogue_text != null:
+		print("AI回复添加完成，当前文本长度: ", npc_dialogue_text.text.length())
+	else:
+		print("错误：npc_dialogue_text为空，无法获取文本长度")
+	
+	if npc_dialogue_panel != null:
+		print("NPC对话面板仍然可见: ", npc_dialogue_panel.visible)
+	else:
+		print("错误：npc_dialogue_panel为空")
 
 func _on_npc_message_submitted(text: String):
 	"""处理NPC对话消息提交"""
@@ -831,3 +902,41 @@ func create_panel_style() -> StyleBoxFlat:
 	style_box.corner_radius_bottom_left = 10
 	style_box.corner_radius_bottom_right = 10
 	return style_box 
+
+func create_test_panel():
+	"""创建测试面板来验证显示功能"""
+	print("创建测试面板...")
+	
+	# 创建一个简单的测试面板
+	var test_panel = Panel.new()
+	test_panel.anchors_preset = Control.PRESET_CENTER
+	test_panel.custom_minimum_size = Vector2(400, 300)
+	test_panel.position = Vector2(200, 150)
+	test_panel.z_index = 1000  # 确保在最前面
+	
+	# 设置明显的背景色
+	var style_box = StyleBoxFlat.new()
+	style_box.bg_color = Color(1.0, 0.0, 0.0, 0.9)  # 红色背景
+	style_box.border_width_left = 5
+	style_box.border_width_right = 5
+	style_box.border_width_top = 5
+	style_box.border_width_bottom = 5
+	style_box.border_color = Color(1.0, 1.0, 1.0)  # 白色边框
+	test_panel.add_theme_stylebox_override("panel", style_box)
+	
+	# 创建测试标签
+	var test_label = Label.new()
+	test_label.text = "测试面板 - 如果你能看到这个，说明面板显示功能正常"
+	test_label.anchors_preset = Control.PRESET_CENTER
+	test_label.add_theme_font_size_override("font_size", 18)
+	test_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	test_label.modulate = Color(1.0, 1.0, 1.0)
+	
+	# 添加组件到面板
+	test_panel.add_child(test_label)
+	
+	# 添加到场景
+	add_child(test_panel)
+	
+	print("测试面板已创建")
+	return test_panel 

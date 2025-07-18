@@ -20,14 +20,6 @@ func _ready():
 	
 	# 强制显示对话
 	call_deferred("force_show_dialogue")
-	
-	# 添加测试按钮到UI管理器
-	call_deferred("add_test_buttons")
-
-func add_test_buttons():
-	"""添加测试按钮到UI管理器"""
-	var ui_manager = get_node("UIManager")
-	ui_manager.add_test_buttons()
 
 func force_show_dialogue():
 	"""强制显示对话界面"""
